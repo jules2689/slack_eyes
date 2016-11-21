@@ -7,14 +7,13 @@ module SlackEyes
     GLOSSARY = {
       'Anger' => 'Likelihood of writer being perceived as angry. Low value indicates unlikely to be perceived as angry. High value indicates very likely to be perceived as angry.',
       'Disgust' => 'Likelihood of writer being perceived as disgusted. Low value, unlikely to be perceived as disgusted. High value, very likely to be perceived as disgusted.',
-      'Fear' => 'Likelihood of writer being perceived as scared. Low value indicates unlikely to be perceived as fearful. High value, very likely to be perceived as scared.',
       'Sadness' => 'Likelihood of writer being perceived as sad. Low value, unlikely to be perceived as sad. High value very likely to be perceived as sad.',
       'Agreeableness' => 'Higher value, writer more likely to be perceived as, compassionate and cooperative towards others.'
     }
     # rubocop:enable Metrics/LineLength
 
     HIGH_TONE_THRESHOLD = 0.5
-    LOW_TONE_THRESHOLD = 0.35
+    LOW_TONE_THRESHOLD = 0.3
 
     attr_accessor :message, :data
 
@@ -94,7 +93,7 @@ module SlackEyes
         end
       end
 
-      high_tones_intersection = high_tones.keys & %w(Anger Sadness Disgust Fear Tentative)
+      high_tones_intersection = high_tones.keys & %w(Anger Sadness Disgust)
       low_tones_intersection = low_tones.keys & %w(Agreeableness)
 
       return nil if high_tones_intersection.empty? && low_tones_intersection.empty?
