@@ -94,9 +94,9 @@ module SlackEyes
       end
 
       high_tones_intersection = high_tones.keys & %w(Anger Sadness Disgust)
-      low_tones_intersection = low_tones.keys & %w(Agreeableness)
+      # low_tones_intersection = low_tones.keys & %w(Agreeableness)
 
-      return nil if high_tones_intersection.empty? && low_tones_intersection.empty?
+      return nil if high_tones_intersection.empty?
 
       message = ["This message exhibited:"]
 
@@ -105,10 +105,10 @@ module SlackEyes
         message << "*#{high_tone}* (#{high_tones[high_tone]}): #{GLOSSARY[high_tone]}"
       end
 
-      message << "\n*Low Tones*" unless low_tones_intersection.empty?
-      low_tones_intersection.each do |low_tone|
-        message << "*#{low_tone}* (#{low_tones[low_tone]}): #{GLOSSARY[low_tone]}"
-      end
+      # message << "\n*Low Tones*" unless low_tones_intersection.empty?
+      # low_tones_intersection.each do |low_tone|
+      #   message << "*#{low_tone}* (#{low_tones[low_tone]}): #{GLOSSARY[low_tone]}"
+      # end
 
       message.join("\n")
     end
