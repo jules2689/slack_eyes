@@ -18,32 +18,52 @@ module SlackEyes
 
     attr_accessor :message, :data
 
-    def initialize(data)
+    def initialize(data, logger, channel = nil)
+      @logger = logger
       @secrets = SlackEyes.load_secrets
+      @channel_name = channel
       self.data = data
+    end
+
+    def analyze
       @resp = bluemix_client.check_tone(data.text)
       self.message = analyze_response(@resp)
     end
 
     def send_message
-      return unless data.user == @secrets['slack_user_id']
-      channel = channel_name
-      current_records = AirtableMessage.records(fields: %w(channel message))
-      return if current_records.any? { |r| r.fields['channel'] == channel && r.fields['message'] = data.text }
+      unless data.user == @secrets['slack_user_id']
+        @logger.info "Returning, not the right user"
+        return
+      end
 
-      post_to_slack(channel)
-      post_to_airtable(channel)
+      current_records = AirtableMessage.records(fields: %w(channel message))
+      if current_records.any? { |r| r.fields['channel'] == channel_name && r.fields['message'] == data.text }
+        @logger.info "Returning, already detected the message in airtable"
+        return
+      end
+
+      formatted_original_message = data.text.split("\n").collect { |l| "> #{l}" }.join("\n")
+      msg = [
+        "The message you posted in the channel *#{channel_name}* may not have been the best words to use",
+        formatted_original_message + "\n",
+        message
+      ].join("\n")
+
+      post_to_slack(msg)
+      post_to_airtable(msg)
+    end
+
+    def channel_name
+      @channel_name ||= begin
+        slack_client.channels_info(channel: data.channel).channel.name
+      rescue Slack::Web::Api::Error
+        slack_client.groups_info(channel: data.channel).group.name
+      end
     end
 
     private
 
-    def post_to_slack(channel)
-      formatted_original_message = data.text.split("\n").collect { |l| "> #{l}" }.join("\n")
-      msg = [
-        "The message you posted in the channel *#{channel}* may not have been the best words to use",
-        formatted_original_message + "\n",
-        message
-      ].join("\n")
+    def post_to_slack(msg)
       slack_client.chat_postMessage(
         channel: @secrets['slack_user_id'],
         text: msg,
@@ -52,21 +72,15 @@ module SlackEyes
       )
     end
 
-    def post_to_airtable(channel)
+    def post_to_airtable(msg)
       airtable_message = AirtableMessage.new(
         message: data.text,
-        channel: channel,
+        channel: channel_name,
         results: msg,
         raw_results: @resp.to_json,
         created_at: Time.now.utc
       )
       airtable_message.create
-    end
-
-    def channel_name
-      slack_client.channels_info(channel: data.channel).channel.name
-    rescue Slack::Web::Api::Error
-      slack_client.groups_info(channel: data.channel).group.name
     end
 
     def analyze_response(resp)

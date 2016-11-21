@@ -7,6 +7,7 @@ module SlackEyes
   class Application
     def initialize
       @secrets = SlackEyes.load_secrets
+      @channels_cache = {}
       @logger = Logger.new MultiIO.new(STDOUT, File.open("#{SlackEyes.app_root}/log/output.log", "a"))
       @logger.info "Starting application in #{SlackEyes.env} mode"
       start
@@ -16,7 +17,14 @@ module SlackEyes
       @logger.info 'Enabling slack message parsing'
       realtime_slack_client.on :message do |data|
         if data.user == @secrets['slack_user_id'] && data.type == 'message'
-          analyzer = MessageAnalyzer.new(data)
+          # Receive Message, Cache Channel name
+          @logger.info "Received message"
+          analyzer = MessageAnalyzer.new(data, @logger, @channels_cache[data.channel])
+          @channels_cache[data.channel] = analyzer.channel_name
+
+          # Analyze Message, send if needed
+          @logger.info "Analyzing data from a message in the channel `#{analyzer.channel_name}`"
+          analyzer.analyze
           if analyzer.message
             @logger.info "Detected issues with #{data.inspect}"
             analyzer.send_message
