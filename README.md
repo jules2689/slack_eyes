@@ -23,4 +23,5 @@ Server Setup
 - chruby
 - ruby 2.3.1
 - bundler
+- Put secrets on the server in `shared/config/secrets.production.ejson`
 - Put EJSON key on the server

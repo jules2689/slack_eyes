@@ -9,6 +9,7 @@ set :user,            'root'
 set :chruby_ruby,     'ruby-2.3.1'
 set :linked_dirs,     %w(log)
 set :environment,     'production'
+set :linked_files,    %w(config/secrets.production.ejson)
 
 namespace :deploy do
   desc "Make sure local git is in sync with remote."
