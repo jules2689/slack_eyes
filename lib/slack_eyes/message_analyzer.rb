@@ -26,6 +26,7 @@ module SlackEyes
     end
 
     def send_message
+      return unless data.user == @secrets['slack_user_id']
       channel = channel_name
       formatted_original_message = data.text.split("\n").collect { |l| "> #{l}" }.join("\n")
       msg = [
@@ -33,7 +34,7 @@ module SlackEyes
         formatted_original_message + "\n",
         message
       ].join("\n")
-      slack_client.chat_postMessage(channel: data.user, text: msg, username: 'Tone Analyzer', as_user: false)
+      slack_client.chat_postMessage(channel: @secrets['slack_user_id'], text: msg, username: 'Tone Analyzer', as_user: false)
 
       airtable_message = AirtableMessage.new(
         message: data.text,
