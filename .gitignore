@@ -2,3 +2,4 @@
 .env
 .bundle/
 config/secrets.json
+log/*
