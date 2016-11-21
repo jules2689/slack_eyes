@@ -1,0 +1,137 @@
+Lint/AssignmentInCondition:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/MultilineOperationIndentation:
+  Enabled: false
+
+Style/AlignParameters:
+  EnforcedStyle: with_fixed_indentation
+
+Style/FirstParameterIndentation:
+  EnforcedStyle: consistent
+
+Style/TrailingCommaInArguments:
+  Enabled: false
+
+Style/TrailingCommaInLiteral:
+  Enabled: false
+
+Style/ExtraSpacing:
+  AllowForAlignment: true
+
+Style/GuardClause:
+  Enabled: false
+
+Style/SignalException:
+  EnforcedStyle: only_raise
+
+Style/NumericLiterals:
+  Enabled: false
+
+Style/NumericLiteralPrefix:
+  EnforcedOctalStyle: zero_only
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/CaseIndentation:
+  IndentWhenRelativeTo: end
+
+Style/IndentArray:
+  EnforcedStyle: consistent
+
+Style/IndentHash:
+  EnforcedStyle: consistent
+
+Style/AlignHash:
+  EnforcedLastArgumentHashStyle: ignore_implicit
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Max: 5
+  CountKeywordArgs: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Lint/EndAlignment:
+  AlignWith: variable
+
+Lint/PercentSymbolArray:
+  Enabled: true
+
+Lint/PercentStringArray:
+  Enabled: true
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/Alias:
+  EnforcedStyle: prefer_alias_method
+
+Style/MutableConstant:
+  Enabled: false
+
+Performance/Casecmp:
+  Enabled: false
+
+Style/AsciiComments:
+  Enabled: false
+
+Style/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+  IndentationWidth: 2
+
+Style/TrailingUnderscoreVariable:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 120
+
+Style/ModuleFunction:
+  Enabled: false
+
+Style/DoubleNegation:
+  Enabled: false
+
+Style/SingleLineBlockParams:
+  Enabled: false
+
+Style/StructInheritance:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  Enabled: false
+
+Style/VariableNumber:
+  Enabled: false
+  
+Style/Lambda:
+  Enabled: false
+
+AllCops:
+  Exclude:
+    - 'db/schema.rb'
