@@ -1,8 +1,15 @@
 require 'airrecord'
 
 class AirtableMessage < Airrecord::Table
-  secrets = JSON.parse(File.read('config/secrets.json'))
-  self.api_key = secrets['airtable_api_key']
-  self.base_key = secrets['airtable_base_key']
-  self.table_name = secrets['airtable_table']
+  def self.api_key
+    SlackEyes.load_secrets['airtable_api_key']
+  end
+
+  def self.base_key
+    SlackEyes.load_secrets['airtable_base_key']
+  end
+
+  def self.table_name
+    SlackEyes.load_secrets['airtable_table']
+  end
 end

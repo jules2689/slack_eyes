@@ -1,12 +1,13 @@
 require 'slack_eyes/bluemix'
 require 'slack_eyes/message_analyzer'
+require 'slack_eyes/multi_io'
 require 'slack'
 
 module SlackEyes
   class Application
     def initialize
       @secrets = SlackEyes.load_secrets
-      @logger = Logger.new(STDOUT)
+      @logger = Logger.new MultiIO.new(STDOUT, File.open("#{SlackEyes.app_root}/log/output.log", "a"))
       @logger.info "Starting application in #{SlackEyes.env} mode"
       start
     end
