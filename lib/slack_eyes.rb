@@ -15,11 +15,13 @@ module SlackEyes
   end
 
   def self.load_secrets
-    SlackEyes.load_secrets_json
-    secrets_json = File.join(app_root, 'config', 'secrets.json')
-    return {} unless File.exists?(secrets_json)
-    JSON.parse(File.read(secrets_json)).each_with_object({}) do |(key, value), secrets|
-      secrets[key] = value
+    @secrets ||= begin
+      SlackEyes.load_secrets_json
+      secrets_json = File.join(app_root, 'config', 'secrets.json')
+      return {} unless File.exists?(secrets_json)
+      JSON.parse(File.read(secrets_json)).each_with_object({}) do |(key, value), secrets|
+        secrets[key] = value
+      end
     end
   end
 

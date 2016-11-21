@@ -1,4 +1,5 @@
 require 'json'
+require 'slack_eyes/airtable_message'
 
 module SlackEyes
   class MessageAnalyzer
@@ -20,17 +21,28 @@ module SlackEyes
     def initialize(data)
       @secrets = SlackEyes.load_secrets
       self.data = data
-      self.message = analyze_response(bluemix_client.check_tone(data.text))
+      @resp = bluemix_client.check_tone(data.text)
+      self.message = analyze_response(@resp)
     end
 
     def send_message
+      channel = channel_name
       formatted_original_message = data.text.split("\n").collect { |l| "> #{l}" }.join("\n")
       msg = [
-        "The message you posted in the channel *#{channel_name}* may not have been the best words to use",
+        "The message you posted in the channel *#{channel}* may not have been the best words to use",
         formatted_original_message + "\n",
         message
       ].join("\n")
       slack_client.chat_postMessage(channel: data.user, text: msg, username: 'Tone Analyzer', as_user: false)
+
+      airtable_message = AirtableMessage.new(
+        message: data.text,
+        channel: channel,
+        results: msg,
+        raw_results: @resp.to_json,
+        created_at: Time.now.utc
+      )
+      airtable_message.create
     end
 
     private

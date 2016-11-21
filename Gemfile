@@ -4,6 +4,8 @@ gem 'ejson'
 gem 'slack-ruby-client'
 gem 'celluloid-io'
 gem 'httparty'
+gem 'airrecord'
+gem 'net-http-persistent', '= 2.9.4'
 
 group :development do
   gem 'rake', '~> 10.0'
