@@ -3,16 +3,7 @@ name: slack_eyes
 up:
 - ruby: 2.3.1
 - bundler
-- custom:
-    name: Ensure local config present
-    desc: Ensure local config present
-    met?: |
-      if ! [[ -f .development.env ]]; then
-        >&2 echo "To run locally, you must create .development.env"
-        >&2 echo "Refer to README.md for details."
-      fi
-    meet: 'true'
 
 commands:
   test: bundle exec rake test
-  server: bundle exec shotgun
+  run: ruby config.ru
