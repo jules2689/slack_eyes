@@ -32,6 +32,10 @@ module SlackEyes
 
   def self.load_secrets_json
     secrets_ejson_path = File.join(app_root, 'config', "secrets.#{env}.ejson")
+    unless File.exist?(secrets_ejson_path)
+      raise "Secrets were not found at #{secrets_ejson_path}"
+    end
+
     encrypted_json = JSON.parse(File.read(secrets_ejson_path))
     public_key = encrypted_json['_public_key']
     private_key_path = Pathname.new("/opt/ejson/keys/#{public_key}")

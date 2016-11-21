@@ -13,8 +13,10 @@ App Setup
 ---
 - Requires Ruby, Bundler
 - Run `bundle install`
-- Requries the ejson private keys for the secrets, or make your own
- - Slack, Bluemix, Airtable credentials required
+- Requries ejson files in config for development and production
+  - `config/secrets.production.ejson`
+  - `config/secrets.development.ejson`
+  - See `config/secrets.test.json` for the entires required
 
 Server Setup
 ---
