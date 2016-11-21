@@ -59,7 +59,11 @@ module SlackEyes
       @channel_name ||= begin
         slack_client.channels_info(channel: data.channel).channel.name
       rescue Slack::Web::Api::Error
-        slack_client.groups_info(channel: data.channel).group.name
+        begin
+          slack_client.groups_info(channel: data.channel).group.name
+        rescue Slack::Web::Api::Error
+          "direct message"
+        end
       end
     end
 
