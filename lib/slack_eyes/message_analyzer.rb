@@ -14,7 +14,7 @@ module SlackEyes
     # rubocop:enable Metrics/LineLength
 
     HIGH_TONE_THRESHOLD = 0.5
-    LOW_TONE_THRESHOLD = 0.5
+    LOW_TONE_THRESHOLD = 0.35
 
     attr_accessor :message, :data
 
