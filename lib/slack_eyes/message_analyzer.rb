@@ -1,5 +1,7 @@
 require 'json'
-require 'slack_eyes/airtable_message'
+require 'slack_eyes/airtable_models/message'
+require 'slack_eyes/airtable_models/anger_message'
+require 'slack_eyes/airtable_models/disgust_message'
 
 module SlackEyes
   class MessageAnalyzer
@@ -7,15 +9,13 @@ module SlackEyes
     GLOSSARY = {
       'Anger' => 'Likelihood of writer being perceived as angry. Low value indicates unlikely to be perceived as angry. High value indicates very likely to be perceived as angry.',
       'Disgust' => 'Likelihood of writer being perceived as disgusted. Low value, unlikely to be perceived as disgusted. High value, very likely to be perceived as disgusted.',
-      'Sadness' => 'Likelihood of writer being perceived as sad. Low value, unlikely to be perceived as sad. High value very likely to be perceived as sad.',
-      'Agreeableness' => 'Higher value, writer more likely to be perceived as, compassionate and cooperative towards others.'
     }
     # rubocop:enable Metrics/LineLength
+    HIGH_TONES = %w(Anger Disgust).freeze
 
     THRESHOLDS = {
       'Anger' => 0.5,
-      'Disgust' => 0.5,
-      'Sadness' => 0.7
+      'Disgust' => 0.5
     }
 
     attr_accessor :message, :data
@@ -38,7 +38,7 @@ module SlackEyes
         return
       end
 
-      current_records = AirtableMessage.records(fields: %w(channel message))
+      current_records = AirtableModels::Message.records(fields: %w(channel message))
       if current_records.any? { |r| r.fields['channel'] == channel_name && r.fields['message'] == data.text }
         @logger.info "Returning, already detected the message in airtable"
         return
@@ -75,7 +75,7 @@ module SlackEyes
     end
 
     def post_to_airtable(msg)
-      airtable_message = AirtableMessage.new(
+      airtable_message = AirtableModels::Message.new(
         message: data.text,
         channel: channel_name,
         results: msg,
@@ -83,28 +83,36 @@ module SlackEyes
         created_at: Time.now.utc
       )
       airtable_message.create
+
+      high_tones(@resp).each do |high_tone, score|
+        case high_tone
+        when 'Anger'
+          AirtableModels::AngerMessage.from_message(airtable_message, score: score).create
+        when 'Disgust'
+          AirtableModels::DisgustMessage.from_message(airtable_message, score: score).create
+        end
+      end
     end
 
     def analyze_response(resp)
-      high_tones = {}
-
-      resp.parsed_response['document_tone']['tone_categories'].each do |category|
-        category['tones'].each do |tone|
-          threshold = THRESHOLDS[tone['tone_name']] || 0.5
-          high_tones[tone['tone_name']] = tone['score'] if tone['score'] >= threshold
-        end
-      end
-
-      high_tones_intersection = high_tones.keys & %w(Anger Disgust)
-
+      high_tones_intersection = high_tones(resp).keys & HIGH_TONES
       return nil if high_tones_intersection.empty?
 
       message = ["This message exhibited:"]
       message << "\n*High Tones*" unless high_tones_intersection.empty?
       high_tones_intersection.each do |high_tone|
-        message << "*#{high_tone}* (#{high_tones[high_tone]}): #{GLOSSARY[high_tone]}"
+        message << "*#{high_tone}* (#{high_tones(resp)[high_tone]}): #{GLOSSARY[high_tone]}"
       end
       message.join("\n")
+    end
+
+    def high_tones(resp)
+      @high_tones ||= resp.parsed_response['document_tone']['tone_categories'].each_with_object({}) do |cat, h_tones|
+        cat['tones'].each do |tone|
+          threshold = THRESHOLDS[tone['tone_name']] || 0.5
+          h_tones[tone['tone_name']] = tone['score'] if tone['score'] >= threshold
+        end
+      end
     end
 
     def bluemix_client
