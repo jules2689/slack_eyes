@@ -31,8 +31,10 @@ module SlackEyes
           @logger.info "Analyzing data from a message in the channel `#{analyzer.channel_name}`"
           analyzer.analyze
           if analyzer.message
-            @logger.info "Detected issues with #{data.inspect}"
+            @logger.info "Detected issues with message"
             analyzer.send_message
+          else
+            @logger.info "Did not detect issues with message"
           end
         end
       end

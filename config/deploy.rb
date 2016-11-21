@@ -8,7 +8,6 @@ set :repo_url,        'git@github.com:jules2689/slack_eyes.git'
 set :user,            'root'
 set :chruby_ruby,     'ruby-2.3.1'
 set :linked_dirs,     %w(log)
-set :linked_files,    %w(config.ru.pid)
 set :environment,     'production'
 
 namespace :deploy do
@@ -28,12 +27,26 @@ namespace :deploy do
     on roles(:app) do
       within current_path do
         with RACK_ENV: fetch(:environment) do
-          execute :bundle, :exec, '/opt/rubies/ruby-2.3.1/bin/ruby', "#{current_path}/slack_eyes_daemon.rb", 'restart'
+          execute :bundle, :exec, '/opt/rubies/ruby-2.3.1/bin/ruby', "#{current_path}/slack_eyes_daemon.rb", 'start'
+        end
+      end
+    end
+  end
+
+  desc "Kill the old Job"
+  task :kill_old_app do
+    on roles(:app) do
+      within current_path do
+        with RACK_ENV: fetch(:environment) do
+          latest_release = capture("ls #{fetch(:deploy_to)}/releases | sort").split("\n").last(2).first
+          puts "Latest Release was #{latest_release}"
+          execute "kill -9 $(cat #{fetch(:deploy_to)}/releases/#{latest_release}/config.ru.pid)"
         end
       end
     end
   end
 
   before :starting, :check_revision
+  before :starting, :kill_old_app
   before :finishing, :start
 end
