@@ -6,6 +6,7 @@ gem 'celluloid-io'
 gem 'httparty'
 gem 'airrecord'
 gem 'net-http-persistent', '= 2.9.4'
+gem 'remote_syslog_logger'
 
 group :development do
   gem 'rake', '~> 10.0'

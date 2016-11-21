@@ -2,13 +2,18 @@ require 'slack_eyes/bluemix'
 require 'slack_eyes/message_analyzer'
 require 'slack_eyes/multi_io'
 require 'slack'
+require 'remote_syslog_logger'
 
 module SlackEyes
   class Application
     def initialize
       @secrets = SlackEyes.load_secrets
       @channels_cache = {}
-      @logger = Logger.new MultiIO.new(STDOUT, File.open("#{SlackEyes.app_root}/log/output.log", "a"))
+      @logger = Logger.new MultiIO.new(
+        STDOUT,
+        File.open("#{SlackEyes.app_root}/log/output.log", "a"),
+        RemoteSyslogLogger::UdpSender.new(@secrets['papertrail_url'], @secrets['papertrail_port'], {})
+      )
       @logger.info "Starting application in #{SlackEyes.env} mode"
       start
     end
