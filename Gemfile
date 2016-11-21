@@ -14,3 +14,7 @@ group :test do
   gem 'minitest', '~> 5.9.1'
   gem 'rack-test', '~> 0.6.3'
 end
+
+gem 'capistrano', '~> 3.6'
+gem 'capistrano-bundler', '~> 1.2'
+gem 'capistrano-chruby'

@@ -6,7 +6,7 @@ module SlackEyes
   class Application
     def initialize
       @secrets = SlackEyes.load_secrets
-      @logger = Logger.new(STDOUT)
+      @logger = SlackEyes.env == 'production' ? Logger.new("log/output.log") : Logger.new(STDOUT)
       start
     end
 
