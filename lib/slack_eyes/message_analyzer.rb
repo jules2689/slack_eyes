@@ -28,14 +28,31 @@ module SlackEyes
     def send_message
       return unless data.user == @secrets['slack_user_id']
       channel = channel_name
+      current_records = AirtableMessage.records(fields: %w(channel message))
+      return if current_records.any? { |r| r.fields['channel'] == channel && r.fields['message'] = data.text }
+
+      post_to_slack(channel)
+      post_to_airtable(channel)
+    end
+
+    private
+
+    def post_to_slack(channel)
       formatted_original_message = data.text.split("\n").collect { |l| "> #{l}" }.join("\n")
       msg = [
         "The message you posted in the channel *#{channel}* may not have been the best words to use",
         formatted_original_message + "\n",
         message
       ].join("\n")
-      slack_client.chat_postMessage(channel: @secrets['slack_user_id'], text: msg, username: 'Tone Analyzer', as_user: false)
+      slack_client.chat_postMessage(
+        channel: @secrets['slack_user_id'],
+        text: msg,
+        username: 'Tone Analyzer',
+        as_user: false
+      )
+    end
 
+    def post_to_airtable(channel)
       airtable_message = AirtableMessage.new(
         message: data.text,
         channel: channel,
@@ -45,8 +62,6 @@ module SlackEyes
       )
       airtable_message.create
     end
-
-    private
 
     def channel_name
       slack_client.channels_info(channel: data.channel).channel.name
