@@ -27,7 +27,9 @@ namespace :deploy do
     on roles(:app) do
       within current_path do
         with RACK_ENV: fetch(:environment) do
-          execute :bundle, :exec, '/opt/rubies/ruby-2.3.1/bin/ruby', "#{current_path}/slack_eyes_daemon.rb", 'start'
+          latest_release = capture("ls #{fetch(:deploy_to)}/releases | sort").split("\n").last
+          puts "Latest Release was #{latest_release}"
+          execute :bundle, :exec, '/opt/rubies/ruby-2.3.1/bin/ruby', "#{fetch(:deploy_to)}/releases/#{latest_release}/slack_eyes_daemon.rb", 'start'
         end
       end
     end
@@ -38,9 +40,9 @@ namespace :deploy do
     on roles(:app) do
       within current_path do
         with RACK_ENV: fetch(:environment) do
-          latest_release = capture("ls #{fetch(:deploy_to)}/releases | sort").split("\n").last(2).first
+          latest_release = capture("ls #{fetch(:deploy_to)}/releases | sort").split("\n").last
           puts "Latest Release was #{latest_release}"
-          execute "kill -9 $(cat #{fetch(:deploy_to)}/releases/#{latest_release}/config.ru.pid)"
+          execute "kill -9 $(cat #{fetch(:deploy_to)}/releases/#{latest_release}/config.ru.pid) || true"
         end
       end
     end
