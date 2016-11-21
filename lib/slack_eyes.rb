@@ -16,9 +16,14 @@ module SlackEyes
 
   def self.load_secrets
     @secrets ||= begin
-      SlackEyes.load_secrets_json
-      secrets_json = File.join(app_root, 'config', 'secrets.json')
-      return {} unless File.exists?(secrets_json)
+      secrets_json = if env != 'test'
+        SlackEyes.load_secrets_json
+        File.join(app_root, 'config', 'secrets.json')
+      else
+        File.join(app_root, 'config', 'secrets.test.json')
+      end
+
+      return {} unless File.exist?(secrets_json)
       JSON.parse(File.read(secrets_json)).each_with_object({}) do |(key, value), secrets|
         secrets[key] = value
       end
@@ -39,14 +44,14 @@ module SlackEyes
         File.write(File.join(app_root, 'config', 'secrets.json'), output)
       end
     else
-      warn <<~WARN
+      warn """
         #{'=' * 80}
         Private key is not listed in
         #{private_key_path}
         You won't be able to import services without setting up some keys.
         If you can, get the private key from 1Password and put it in that file.
         #{'=' * 80}
-      WARN
+      """
     end
   end
 end
