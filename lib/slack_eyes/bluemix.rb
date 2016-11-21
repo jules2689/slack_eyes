@@ -13,7 +13,10 @@ module SlackEyes
     def check_tone(msg)
       self.class.post(
         '/tone-analyzer/api/v3/tone?version=2016-05-19',
-        headers: { 'Content-Type' => 'application/json' },
+        headers: {
+          'Content-Type' => 'application/json',
+          'X-Watson-Learning-Opt-Out' => '1'
+        },
         body: { text: msg }.to_json,
         basic_auth: @auth
       )
