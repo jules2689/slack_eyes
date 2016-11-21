@@ -18,3 +18,4 @@ end
 gem 'capistrano', '~> 3.6'
 gem 'capistrano-bundler', '~> 1.2'
 gem 'capistrano-chruby'
+gem 'daemons'
