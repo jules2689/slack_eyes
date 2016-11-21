@@ -59,12 +59,12 @@ module SlackEyes
 
       message = ["This message exhibited:"]
 
-      message << "\n*High Tones*"
+      message << "\n*High Tones*" unless high_tones_intersection.empty?
       high_tones_intersection.each do |high_tone|
         message << "*#{high_tone}* (#{high_tones[high_tone]}): #{GLOSSARY[high_tone]}"
       end
 
-      message << "\n*Low Tones*"
+      message << "\n*Low Tones*" unless low_tones_intersection.empty?
       low_tones_intersection.each do |low_tone|
         message << "*#{low_tone}* (#{low_tones[low_tone]}): #{GLOSSARY[low_tone]}"
       end
