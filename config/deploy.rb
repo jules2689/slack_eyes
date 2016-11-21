@@ -43,14 +43,13 @@ namespace :deploy do
           latest_release = capture("ls #{fetch(:deploy_to)}/releases | sort").split("\n").last
           puts "Latest Release was #{latest_release}"
           execute "kill -9 $(cat #{fetch(:deploy_to)}/releases/#{latest_release}/config.ru.pid) || true"
-          execute "rm -rf #{fetch(:deploy_to)}/releases/#{latest_release}/config.ru.pid"
         end
       end
     end
   end
 
   desc "Check that the job is running"
-  task :kill_old_app do
+  task :check_running do
     on roles(:app) do
       within current_path do
         with RACK_ENV: fetch(:environment) do
