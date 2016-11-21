@@ -11,6 +11,18 @@ set :linked_dirs,     %w(log)
 set :environment,     'production'
 set :linked_files,    %w(config/secrets.production.ejson)
 
+namespace :secrets do
+  desc "Sync local secrets to production"
+  task :sync do
+    on roles(:app) do
+      within shared_path do
+        secrets = File.read('config/secrets.production.ejson')
+        upload! StringIO.new(secrets), "#{shared_path}/config/secrets.production.ejson"
+      end
+    end
+  end
+end
+
 namespace :deploy do
   desc "Make sure local git is in sync with remote."
   task :check_revision do
@@ -64,6 +76,7 @@ namespace :deploy do
 
   before :starting,  :check_revision
   before :starting,  :kill_old_app
+  before :starting,  'secrets:sync'
   before :finishing, :start
   after  :finishing, :check_running
 end
