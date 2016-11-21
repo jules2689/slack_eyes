@@ -12,8 +12,11 @@ module SlackEyes
     }
     # rubocop:enable Metrics/LineLength
 
-    HIGH_TONE_THRESHOLD = 0.5
-    LOW_TONE_THRESHOLD = 0.3
+    THRESHOLDS = {
+      'Anger' => 0.5,
+      'Disgust' => 0.5,
+      'Sadness' => 0.7
+    }
 
     attr_accessor :message, :data
 
@@ -84,32 +87,23 @@ module SlackEyes
 
     def analyze_response(resp)
       high_tones = {}
-      low_tones = {}
 
       resp.parsed_response['document_tone']['tone_categories'].each do |category|
         category['tones'].each do |tone|
-          high_tones[tone['tone_name']] = tone['score'] if tone['score'] >= HIGH_TONE_THRESHOLD
-          low_tones[tone['tone_name']] = tone['score'] if tone['score'] < LOW_TONE_THRESHOLD
+          threshold = THRESHOLDS[tone['tone_name']] || 0.5
+          high_tones[tone['tone_name']] = tone['score'] if tone['score'] >= threshold
         end
       end
 
-      high_tones_intersection = high_tones.keys & %w(Anger Sadness Disgust)
-      # low_tones_intersection = low_tones.keys & %w(Agreeableness)
+      high_tones_intersection = high_tones.keys & %w(Anger Disgust)
 
       return nil if high_tones_intersection.empty?
 
       message = ["This message exhibited:"]
-
       message << "\n*High Tones*" unless high_tones_intersection.empty?
       high_tones_intersection.each do |high_tone|
         message << "*#{high_tone}* (#{high_tones[high_tone]}): #{GLOSSARY[high_tone]}"
       end
-
-      # message << "\n*Low Tones*" unless low_tones_intersection.empty?
-      # low_tones_intersection.each do |low_tone|
-      #   message << "*#{low_tone}* (#{low_tones[low_tone]}): #{GLOSSARY[low_tone]}"
-      # end
-
       message.join("\n")
     end
 
