@@ -48,7 +48,21 @@ namespace :deploy do
     end
   end
 
-  before :starting, :check_revision
-  before :starting, :kill_old_app
+  desc "Check that the job is running"
+  task :kill_old_app do
+    on roles(:app) do
+      within current_path do
+        with RACK_ENV: fetch(:environment) do
+          latest_release = capture("ls #{fetch(:deploy_to)}/releases | sort").split("\n").last
+          puts "Latest Release was #{latest_release}"
+          execute :bundle, :exec, '/opt/rubies/ruby-2.3.1/bin/ruby', "#{fetch(:deploy_to)}/releases/#{latest_release}/slack_eyes_daemon.rb", 'status'
+        end
+      end
+    end
+  end
+
+  before :starting,  :check_revision
+  before :starting,  :kill_old_app
   before :finishing, :start
+  after  :finishing, :check_running
 end
